@@ -26,3 +26,6 @@ for i in range(pages):
     checkedout = repo['created_at']
     repos[user] = checkedout
 
+with open("checkout.txt", 'w') as f: 
+    for key, value in repos.items(): 
+        f.write('%s:%s\n' % (key, value))
