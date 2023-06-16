@@ -4,6 +4,7 @@ import re
 from dotenv import dotenv_values
 from datetime import datetime,timedelta
 from sys import exit
+from pathlib import Path
 
 config = dotenv_values(".env")
 token = config['GITHUB_TOKEN']
@@ -26,7 +27,7 @@ def check_rate_limit():
   r = requests.get("https://api.github.com/rate_limit", headers=headers).json()
   return int(r["rate"]["remaining"]) 
 
-def commit_histories(name):
+def commit_histories(name,assignment):
   comurl = config['BASE_COMMIT_URL']+name+"/commits"
   if not check_rate_limit() > 0:
     print("Rate Limit exceeded, try again later")
@@ -36,7 +37,10 @@ def commit_histories(name):
   for commit in r:
     time = (commit['commit']['author']['date']) 
     commits.append(str(convertTime(time)))
-  with open(name+".history", 'w') as f: 
+
+
+  Path(assignment).mkdir(exist_ok=True, parents=True)
+  with open(assignment+"/"+name+".history", 'w') as f: 
       for time in commits: 
           f.write('%s:%s\n' % (name, time))
   return commits
@@ -64,7 +68,16 @@ def start():
       repos[user] = str(newtime)
 
   with open("checkout.txt", 'w') as f: 
-      for key, value in repos.items(): 
-          f.write('%s:%s\n' % (key, value))
+    for key, value in repos.items(): 
+      #commit_histories(key)
+      f.write('%s:%s\n' % (key, value))
 #start()
-#commit_histories("project-1-CliffBakalian")
+
+def project_histories(assignment):
+  assign_len = len(assignment)
+  with open("checkout.txt", 'r') as f: 
+    for line in f:
+      if assignment == line[:assign_len]:
+        commit_histories(line.split(":")[0],assignment)
+
+#project_histories("project-1")
