@@ -3,6 +3,7 @@ import json
 import re
 from dotenv import dotenv_values
 from datetime import datetime,timedelta
+from sys import exit
 
 config = dotenv_values(".env")
 token = config['GITHUB_TOKEN']
@@ -21,8 +22,15 @@ time_re = re.compile('(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})T(?P<hour>\
 
 OFFSET = 4
 
+def check_rate_limit():
+  r = requests.get("https://api.github.com/rate_limit", headers=headers).json()
+  return int(r["rate"]["remaining"]) 
+
 def commit_histories(name):
   comurl = config['BASE_COMMIT_URL']+name+"/commits"
+  if not check_rate_limit() > 0:
+    print("Rate Limit exceeded, try again later")
+    exit(1)
   r = requests.get(comurl, headers=headers).json()
   commits = []
   for commit in r:
@@ -44,6 +52,9 @@ def start():
   for i in range(pages):
     page = {'page':i+1}
     page.update(parameters)
+    if not check_rate_limit() > 0:
+      print("Rate Limit exceeded, try again later")
+      exit(1)
     r = requests.get(url, headers=headers, params=page).json()
     for repo in r:
       user = repo['name']
