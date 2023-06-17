@@ -1,3 +1,5 @@
 .env
 checkout.txt
 *.history
+**__pycache__
+*.pickle

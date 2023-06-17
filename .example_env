@@ -1,0 +1,5 @@
+#rename this to .env
+BASE_ORG_URL=https://api.github.com/orgs/{ORG}/repos
+BASE_COMMIT_URL=https://api.github.com/repos/{ORG}/
+GITHUB_TOKEN=ghp_token
+
