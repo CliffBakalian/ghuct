@@ -77,7 +77,7 @@ def project_histories(assignment):
   assign_len = len(assignment)
   with open("checkout.txt", 'r') as f: 
     for line in f:
-      if assignment == line[:assign_len]:
+      if assignment+"-" == line[:assign_len+1]:
         commit_histories(line.split(":")[0],assignment)
 
 #project_histories("project-1")
