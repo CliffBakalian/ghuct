@@ -11,9 +11,9 @@ def updateRepoList():
 def update_assignment_database(assignment):
   update(assignment) 
 
-ass = "project-1"
-#updateRepoList()
-#updateHistories(ass)
+ass = "example_assignment"
+updateRepoList()
+updateHistories(ass)
 update_assignment_database(ass)
 a = getCPD(ass)
 print(visCPD(a))

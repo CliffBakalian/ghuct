@@ -11,14 +11,21 @@ def visCPD(cpd,scale=8):
   currline = scale
   table= ["Commits Per day"] 
   margin = len(str(step)) + 1
+  firsts = []
   while(currline >= 0):
     label = str(step*currline)
     row = label+" "*((margin-len(label))+1)
+    loop = 0
     for x in counts:
       if x/step > currline:
-        row += "  X   "
+        if (x,loop) in firsts:
+          row += "  X   "
+        else:
+          firsts.append((x,loop))
+          row += " "+str(x).zfill(3)+"  "
       else:
         row += "      "
+      loop+=1
     table.append(row[:-1].strip())
     currline -= 1
   table.append("-"*(strlen+margin))
@@ -40,14 +47,21 @@ def visCD(cd,scale=8):
   currline = scale
   table= ["Checkout Days"] 
   margin = len(str(step)) + 1
+  firsts = []
   while(currline >= 0):
     label = str(step*currline)
     row = label+" "*((margin-len(label))+1)
+    loop = 0
     for x in counts:
       if x/step > currline:
-        row += "  X   "
+        if (x,loop) in firsts:
+          row += "  X   "
+        else:
+          firsts.append((x,loop))
+          row += " "+str(x).zfill(3)+"  "
       else:
         row += "      "
+      loop+=1
     table.append(row[:-1].strip())
     currline -= 1
   table.append("-"*(strlen+margin))
@@ -69,14 +83,21 @@ def visCPH(cph,scale=8):
   currline = scale
   table= ["Commit Times"] 
   margin = len(str(step)) + 1
+  firsts = []
   while(currline >= 0):
     label = str(step*currline)
     row = label+" "*((margin-len(label))+1)
+    loop = 0
     for x in counts:
       if x/step > currline:
-        row += " X "
+        if (x,loop) in firsts:
+          row += " X "
+        else:
+          firsts.append((x,loop))
+          row += '{:2d}'.format(x) + " "
       else:
         row += "   "
+      loop +=1
     table.append(row[:-1].strip())
     currline -= 1
   table.append("-"*(strlen+margin))

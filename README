@@ -19,6 +19,14 @@ Things I want to know:
 
 There are two versions: python and go. I find go runs faster (sometimes too fast, I get rate limited sometimes). Regardless of which version you use, you will need to setup a [github access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token) and get the url of the organization of the repository that holds the classroom repos. An example `.env` file is provided.
 
+You will also need to write a config file for each project, placed in a folder named for the project. For example, `project-1/config` is the config file for the assignment "project-1". This config file will look like:
+```text
+Release: MM-DD-YYYY
+Due: MM-DD-YYYY
+Late: MM-DD-YYYY
+```
+`Release` is the day the project was released, `Due` is the date it is due, and `Late` is the late deadline, if any. If there is no late deadline, you can copy the Due date, or leave the line out completely.
+
 ### Python
 You can just run the python version provided you have `python-dotenv` installed (`pip install python-dotenv`), Even then, not really needed if you wanted to hardcode in your github access token and the urls.
 
