@@ -14,7 +14,7 @@ def update_assignment_database(assignment):
 
 commands = ["update","help","vis"]
 update_com = ["repos", "history", "db"]
-vis_com = ["cpd", "cd", "cph"]
+vis_com = ["cpd", "cd", "cph","fc"]
 help_msg = "useage: shell.py <command> [args]\n\n" + \
            "Commands:\n\n" + \
            "help: show this message\n\n" + \
@@ -29,6 +29,7 @@ help_msg = "useage: shell.py <command> [args]\n\n" + \
            "\tcpd <assignment>: will show how many commits occured each day of the project\n" + \
            "\tcd <assignment>: will show how many people checked out the poject each day\n" + \
            "\tcph <assignment>: will show how many commits occured each half hour during all days of the project\n" + \
+           "\tfc <assignment>: will show when the first student commit was created (this typically means first submit time to Gradescope).\n" + \
            "\t<assignment>: will pring all graphs for the given assignment"
 
 if __name__ == "__main__":
@@ -86,6 +87,9 @@ if __name__ == "__main__":
       elif arg == "cph":
         c = getCPH(ass)
         print(visCPH(c))
+      elif arg == "fc":
+        c = getFC(ass)
+        print(visFC(c))
       else:
         print("this should never be seen")
         sys.exit(2)
@@ -93,8 +97,10 @@ if __name__ == "__main__":
       a = getCPD(arg)
       b = getCD(arg)
       c = getCPH(arg)
+      d = getFC(arg)
       print(visCPD(a))
       print(visCD(b))
       print(visCPH(c))
+      print(visFD(d))
   elif sys.argv[1] == "help":
     print(help_msg)

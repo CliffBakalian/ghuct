@@ -59,12 +59,15 @@ def init_data_base(assignment):
   cpd = {}
   cd = {}
   cph  = {}
+  fc = {}
+  tc = {}
   for x in days:
     cpd[x] = 0
     cd[x] = 0
+    fc[x] = 0
   for x in times:
     cph[x] = 0
-  return cpd,cd,cph
+  return cpd,cd,cph,fc,tc
 
 '''
 for each person 
@@ -83,6 +86,7 @@ def process_person(repo,assignment,database):
     personal_times[x] = 0
   count = 0
   checkout_day = None
+  first_commit = None
   last_day = None
   count = 0
   with open(assignment+"/"+repo+".history") as f:
@@ -96,7 +100,9 @@ def process_person(repo,assignment,database):
         database['cpd'][d] += 1
         if count == 0:
           last_day = d
-
+        if count == 1:
+          first_commit = d
+          database['fc'][d] += 1
         hour = int(matched.group(4))
         mins = int(matched.group(5))
         t = time(hour=hour,minute=(mins//30)*30,second=0)
@@ -104,18 +110,23 @@ def process_person(repo,assignment,database):
         personal_times[t] +=1
         count += 1
     database['cd'][d] += 1
+    database['tc'][repo] = count
     checkout_day = d
     days_worked = (last_day - checkout_day).days
-  return checkout_day,count,days_worked,personal_times
-
-#project-1-CliffBakalian:2023-06-10 23:36:18
+    if first_commit:
+      days_testing= (last_day - first_commit).days
+    else:
+      days_testing=1
+  return checkout_day,count,days_worked,personal_times,days_testing
 
 def mkDataBase(assignment):
   database = {}
-  a,b,c = init_data_base(assignment)
+  a,b,c,d,e = init_data_base(assignment)
   database['cpd'] = a
   database['cd'] = b
   database['cph'] = c
+  database['fc'] = d
+  database['tc'] = e
   
   ext = ".history"
   soffset = len(assignment)
@@ -145,6 +156,14 @@ def getCD(assignment):
 def getCPH(assignment):
   db = load(assignment)
   return db['cph']
+
+def getFC(assignment):
+  db = load(assignment)
+  return db['fc']
+
+def getTC(assignment):
+  db = load(assignment)
+  return db['tc']
 
 def update(assignment):
   db = mkDataBase(assignment)

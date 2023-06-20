@@ -111,3 +111,39 @@ def visCPH(cph,scale=8):
     axis+=str(x.minute).zfill(2)+" "
   table.append(axis[:-1])
   return ("\n".join(table)) 
+
+def visFC(cpd,scale=8):
+  days = list(cpd.keys())
+  bins = len(days)
+  days.sort()
+  counts = []
+  for x in days:
+    counts.append(cpd[x])
+  step = max(counts)//scale
+  strlen = (bins * 6) - 1
+  currline = scale
+  table= ["First Commit Days"] 
+  margin = len(str(step)) + 1
+  firsts = []
+  while(currline >= 0):
+    label = str(step*currline)
+    row = label+" "*((margin-len(label))+1)
+    loop = 0
+    for x in counts:
+      if x/step > currline:
+        if (x,loop) in firsts:
+          row += "  X   "
+        else:
+          firsts.append((x,loop))
+          row += " "+str(x).zfill(3)+"  "
+      else:
+        row += "      "
+      loop+=1
+    table.append(row[:-1].strip())
+    currline -= 1
+  table.append("-"*(strlen+margin))
+  axis = " "*(margin + 1)
+  for x in days:
+    axis+=str(x.month).zfill(2)+"/"+str(x.day).zfill(2)+" "
+  table.append(axis[:-1])
+  return ("\n".join(table)) 
