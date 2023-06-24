@@ -101,6 +101,6 @@ if __name__ == "__main__":
       print(visCPD(a))
       print(visCD(b))
       print(visCPH(c))
-      print(visFD(d))
+      print(visFC(d))
   elif sys.argv[1] == "help":
     print(help_msg)

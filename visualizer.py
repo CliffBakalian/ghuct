@@ -120,6 +120,8 @@ def visFC(cpd,scale=8):
   for x in days:
     counts.append(cpd[x])
   step = max(counts)//scale
+  if step == 0:
+    step = 1
   strlen = (bins * 6) - 1
   currline = scale
   table= ["First Commit Days"] 

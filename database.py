@@ -7,28 +7,32 @@ import glob,pickle
 def get_dates(assignment):
   start = None
   end = None
-  with open(assignment+"/config") as f:
-    for line in f:
-      matched1 = re.search(r'Release: (\d\d)-(\d\d)-(\d{4})',line)
-      matched2 = re.search(r'Due: (\d\d)-(\d\d)-(\d{4})',line)
-      matched3 = re.search(r'Late: (\d\d)-(\d\d)-(\d{4})',line)
-      if matched1:
-        month = int(matched1.group(1))
-        day   = int(matched1.group(2))
-        year  = int(matched1.group(3))
-        start = date(month=month,day=day,year=year)
-      elif matched2:
-        month = int(matched2.group(1))
-        day   = int(matched2.group(2))
-        year  = int(matched2.group(3))
-        if not end:
+  try:
+    with open(assignment+"/config") as f:
+      for line in f:
+        matched1 = re.search(r'Release: (\d\d)-(\d\d)-(\d{4})',line)
+        matched2 = re.search(r'Due: (\d\d)-(\d\d)-(\d{4})',line)
+        matched3 = re.search(r'Late: (\d\d)-(\d\d)-(\d{4})',line)
+        if matched1:
+          month = int(matched1.group(1))
+          day   = int(matched1.group(2))
+          year  = int(matched1.group(3))
+          start = date(month=month,day=day,year=year)
+        elif matched2:
+          month = int(matched2.group(1))
+          day   = int(matched2.group(2))
+          year  = int(matched2.group(3))
+          if not end:
+            end = date(month=month,day=day,year=year)
+          due = date(month=month,day=day,year=year)
+        elif matched3:
+          month = int(matched3.group(1))
+          day   = int(matched3.group(2))
+          year  = int(matched3.group(3))
           end = date(month=month,day=day,year=year)
-        due = date(month=month,day=day,year=year)
-      elif matched3:
-        month = int(matched3.group(1))
-        day   = int(matched3.group(2))
-        year  = int(matched3.group(3))
-        end = date(month=month,day=day,year=year)
+  except:
+    print("config file needs to be written. Was this init?")
+    exit(1)
   if not(start and end):
     print("malformed config file")
     exit(1)     
