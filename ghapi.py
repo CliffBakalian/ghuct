@@ -35,8 +35,9 @@ def commit_histories(name,assignment):
   r = requests.get(comurl, headers=headers).json()
   commits = []
   for commit in r:
-    time = (commit['commit']['author']['date']) 
-    commits.append(str(convertTime(time)))
+    if 'commit' in commit:
+      time = (commit['commit']['author']['date']) 
+      commits.append(str(convertTime(time)))
 
 
   Path(assignment).mkdir(exist_ok=True, parents=True)

@@ -22,7 +22,8 @@ def visCPD(cpd,scale=8):
           row += "  X   "
         else:
           firsts.append((x,loop))
-          row += " "+str(x).zfill(3)+"  "
+          l = len(str(x).zfill(3))
+          row += " "+str(x).zfill(3)+(6-l-1)*" "
       else:
         row += "      "
       loop+=1
@@ -94,7 +95,7 @@ def visCPH(cph,scale=8):
           row += " X "
         else:
           firsts.append((x,loop))
-          row += '{:2d}'.format(x) + " "
+          row += '{:3d}'.format(x) + ""
       else:
         row += "   "
       loop +=1

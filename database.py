@@ -94,6 +94,7 @@ def process_person(repo,assignment,database):
   last_day = None
   count = 0
   with open(assignment+"/"+repo+".history") as f:
+    d = None
     for line in f:
       matched = re.search(r':(\d{4})-(\d\d)-(\d\d).(\d\d):(\d\d)',line)
       if matched:
@@ -101,23 +102,31 @@ def process_person(repo,assignment,database):
         month = int(matched.group(2))
         day   = int(matched.group(3))
         d = date(month=month,day=day,year=year)
-        database['cpd'][d] += 1
+        try:
+          database['cpd'][d] += 1
+        except KeyError:
+          d = None
         if count == 0:
           last_day = d
         if count == 1:
-          first_commit = d
-          database['fc'][d] += 1
+          try:
+            database['fc'][d] += 1
+          except KeyError:
+            print("Ignoring date:" + str(date(month=month,day=day,year=year)))
         hour = int(matched.group(4))
         mins = int(matched.group(5))
         t = time(hour=hour,minute=(mins//30)*30,second=0)
         database['cph'][t] += 1
         personal_times[t] +=1
         count += 1
-    database['cd'][d] += 1
+    if d and last_day: 
+      database['cd'][d] += 1
+      checkout_day = d
+      days_worked = (last_day - checkout_day).days
+    else:
+      days_worked = 0
     database['tc'][repo] = count
-    checkout_day = d
-    days_worked = (last_day - checkout_day).days
-    if first_commit:
+    if first_commit and last_day:
       days_testing= (last_day - first_commit).days
     else:
       days_testing=1
