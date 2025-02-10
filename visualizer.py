@@ -6,7 +6,7 @@ def visCPD(cpd,scale=8):
   counts = []
   for x in days:
     counts.append(cpd[x])
-  step = max(counts)//scale
+  step = max(max(counts)//scale,1)
   strlen = (bins * 6) - 1
   currline = scale
   table= ["Commits Per day"] 
@@ -43,7 +43,7 @@ def visCD(cd,scale=8):
   counts = []
   for x in days:
     counts.append(cd[x])
-  step = max(counts)//scale
+  step = max(max(counts)//scale,1)
   strlen = (bins * 6) - 1
   currline = scale
   table= ["Checkout Days"] 
@@ -79,7 +79,7 @@ def visCPH(cph,scale=8):
   counts = []
   for x in days:
     counts.append(cph[x])
-  step = max(counts)//scale
+  step = max(max(counts)//scale,1)
   strlen = (bins * 3) - 1
   currline = scale
   table= ["Commit Times"] 
@@ -120,7 +120,7 @@ def visFC(cpd,scale=8):
   counts = []
   for x in days:
     counts.append(cpd[x])
-  step = max(counts)//scale
+  step = max(max(counts)//scale,1)
   if step == 0:
     step = 1
   strlen = (bins * 6) - 1

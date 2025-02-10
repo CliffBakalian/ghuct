@@ -27,13 +27,16 @@ def check_rate_limit():
   r = requests.get("https://api.github.com/rate_limit", headers=headers).json()
   return int(r["rate"]["remaining"]) 
 
-def commit_histories(name,assignment):
+def commit_histories(name,assignment,created=None):
   comurl = config['BASE_COMMIT_URL']+name+"/commits"
   if not check_rate_limit() > 0:
     print("Rate Limit exceeded, try again later")
     exit(1)
   r = requests.get(comurl, headers=headers).json()
   commits = []
+  #if created:
+    #commits.append("created:"+str(convertTime(created)))
+    #print(str(name)+"\t"+str(convertTime(created)))
   for commit in r:
     if 'commit' in commit:
       time = (commit['commit']['author']['date']) 
@@ -42,6 +45,8 @@ def commit_histories(name,assignment):
 
   Path(assignment).mkdir(exist_ok=True, parents=True)
   with open(assignment+"/"+name+".history", 'w') as f: 
+      if created:
+        f.write("created:%s\n" % str(convertTime(created)))
       for time in commits: 
           f.write('%s:%s\n' % (name, time))
   return commits
@@ -79,6 +84,7 @@ def project_histories(assignment):
   with open("checkout.txt", 'r') as f: 
     for line in f:
       if assignment+"-" == line[:assign_len+1]:
-        commit_histories(line.split(":")[0],assignment)
-
-#project_histories("project-1")
+        stuff = line.split(":")
+        date=stuff[1].split(" ")
+        checkout = (date[0] + "T" + date[1]+":"+":".join(stuff[2:]).strip()+"Z")
+        commit_histories(line.split(":")[0],assignment,checkout)

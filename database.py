@@ -7,12 +7,14 @@ import glob,pickle
 def get_dates(assignment):
   start = None
   end = None
+  staff_commits=[]
   try:
     with open(assignment+"/config") as f:
       for line in f:
         matched1 = re.search(r'Release: (\d\d)-(\d\d)-(\d{4})',line)
         matched2 = re.search(r'Due: (\d\d)-(\d\d)-(\d{4})',line)
         matched3 = re.search(r'Late: (\d\d)-(\d\d)-(\d{4})',line)
+        matched4 = re.search(r'STAFF: (\d{4})-(\d\d)-(\d\d) (\d{2}):(\d{2}):(\d{2})',line)
         if matched1:
           month = int(matched1.group(1))
           day   = int(matched1.group(2))
@@ -30,6 +32,17 @@ def get_dates(assignment):
           day   = int(matched3.group(2))
           year  = int(matched3.group(3))
           end = date(month=month,day=day,year=year)
+        elif matched4:
+          '''
+          month = int(matched4.group(2))
+          day   = int(matched4.group(3))
+          year  = int(matched4.group(1))
+          hour  = int(matched4.group(4))
+          minute= int(matched4.group(5))
+          sec   = int(matched4.group(6))
+          staff_commits.append(datetime(year,month,day,hour,minute,sec))
+          '''
+          staff_commits.append(line[7:].strip())
   except:
     print("config file needs to be written. Was this init?")
     exit(1)
@@ -41,7 +54,7 @@ def get_dates(assignment):
   while (curr != end):
     curr = curr + timedelta(days=1)
     ret.append(curr)
-  return (ret,due)
+  return (ret,due,staff_commits)
 
 def get_times():
   ret = []
@@ -58,7 +71,7 @@ returns checkout_day [day] -> count x people checked out on this day
 returns commits_per_hr [time] -> count x commits occured within 30 mins of time
 '''
 def init_data_base(assignment):
-  days,due = get_dates(assignment)
+  days,due,staff = get_dates(assignment)
   times = get_times()
   cpd = {}
   cd = {}
@@ -71,11 +84,10 @@ def init_data_base(assignment):
     fc[x] = 0
   for x in times:
     cph[x] = 0
-  return cpd,cd,cph,fc,tc
+  return cpd,cd,cph,fc,tc,staff
 
 '''
 for each person 
-  + add their checkout day to database
   + add their commits per day to databse
   + add thier commits per hour to database
   + make personal database of commits per hour
@@ -83,71 +95,93 @@ for each person
   + figure out how many days they worked
   + figure out how many commits they made total
 '''
-def process_person(repo,assignment,database):
+def process_person(repo,assignment,database,staff=[]):
   a = get_times()
   personal_times = {}
   for x in a:
     personal_times[x] = 0
   count = 0
-  checkout_day = None
   first_commit = None
+  checkout_day = None
   last_day = None
   count = 0
   with open(assignment+"/"+repo+".history") as f:
     d = None
     for line in f:
-      matched = re.search(r':(\d{4})-(\d\d)-(\d\d).(\d\d):(\d\d)',line)
+      matched = re.search(r'created:(\d{4})-(\d\d)-(\d\d).(\d\d):(\d\d)',line)
       if matched:
         year  = int(matched.group(1))
         month = int(matched.group(2))
         day   = int(matched.group(3))
         d = date(month=month,day=day,year=year)
         try:
-          database['cpd'][d] += 1
-        except KeyError:
-          d = None
-        if count == 0:
-          last_day = d
-        if count == 1:
+          database['cd'][d] += 1
+        except:
+          database['cd'][d] = 1
+      else:
+        matched = re.search(r':(\d{4})-(\d\d)-(\d\d).(\d\d):(\d\d):(\d\d)',line)
+        if matched:
+          year  = int(matched.group(1))
+          month = int(matched.group(2))
+          day   = int(matched.group(3))
+          d = date(month=month,day=day,year=year)
+          if matched.group(0)[1:] in staff:
+            continue
           try:
-            database['fc'][d] += 1
+            database['cpd'][d] += 1
           except KeyError:
-            print("Ignoring date:" + str(date(month=month,day=day,year=year)))
-        hour = int(matched.group(4))
-        mins = int(matched.group(5))
-        t = time(hour=hour,minute=(mins//30)*30,second=0)
-        database['cph'][t] += 1
-        personal_times[t] +=1
-        count += 1
+            d = None
+          if count == 0:
+            last_day = d
+          if count == 1:
+            try:
+              database['fc'][d] += 1
+            except KeyError:
+              #print("Ignoring date:" + str(date(month=month,day=day,year=year)))
+              3
+          hour = int(matched.group(4))
+          mins = int(matched.group(5))
+          t = time(hour=hour,minute=(mins//30)*30,second=0)
+          database['cph'][t] += 1
+          personal_times[t] +=1
+          count += 1
+    '''
     if d and last_day: 
       database['cd'][d] += 1
-      checkout_day = d
-      days_worked = (last_day - checkout_day).days
+      days_worked = 0
     else:
       days_worked = 0
+    '''
+    days_worked = 0
     database['tc'][repo] = count
     if first_commit and last_day:
       days_testing= (last_day - first_commit).days
     else:
       days_testing=1
-  return checkout_day,count,days_worked,personal_times,days_testing
+  return count,days_worked,personal_times,days_testing
 
 def mkDataBase(assignment):
   database = {}
-  a,b,c,d,e = init_data_base(assignment)
-  database['cpd'] = a
-  database['cd'] = b
-  database['cph'] = c
-  database['fc'] = d
-  database['tc'] = e
+  a,b,c,d,e,staff = init_data_base(assignment)
+  database['cpd'] = a #commits per day
+  database['cd'] = b #checkout day
+  database['cph'] = c #commits per hour
+  database['fc'] = d #first commit
+  database['tc'] = e #total commits?
   
   ext = ".history"
   soffset = len(assignment)
   eoffset = len(ext)
 
   for person in glob.glob(assignment+"/*"+ext):
-    process_person(person[soffset:-eoffset],assignment,database)  
+    process_person(person[soffset:-eoffset],assignment,database,staff)  
+  #get_checkout_days(database)
   return database
+
+#def get_checkout_days(database):
+  #with open("checkout.txt") as f:
+    
+    
 
 def save(assignment,database):
   with open(assignment+'.pickle', 'wb') as handle:
