@@ -3,6 +3,7 @@ from datetime import date,timedelta,datetime,time
 from dotenv import dotenv_values
 from sys import exit
 import glob,pickle
+DAYLIGHTS=True
 
 def get_dates(assignment):
   start = None
@@ -113,7 +114,13 @@ def process_person(repo,assignment,database,staff=[]):
         year  = int(matched.group(1))
         month = int(matched.group(2))
         day   = int(matched.group(3))
+        hour  = int(matched.group(4))
+        minute= int(matched.group(5))
         d = date(month=month,day=day,year=year)
+        if DAYLIGHTS:
+          dt = datetime(year,month,day,hour,minute,0)
+          new_d = dt - timedelta(hours=1)
+          d = date(new_d.year,new_d.month,new_d.day)
         try:
           database['cd'][d] += 1
         except:
@@ -124,9 +131,15 @@ def process_person(repo,assignment,database,staff=[]):
           year  = int(matched.group(1))
           month = int(matched.group(2))
           day   = int(matched.group(3))
+          hour  = int(matched.group(4))
+          minute= int(matched.group(5))
           d = date(month=month,day=day,year=year)
           if matched.group(0)[1:] in staff:
             continue
+          if DAYLIGHTS:
+            dt = datetime(year,month,day,hour,minute,0)
+            new_d = dt - timedelta(hours=1)
+            d = date(new_d.year,new_d.month,new_d.day)
           try:
             database['cpd'][d] += 1
           except KeyError:
@@ -142,6 +155,9 @@ def process_person(repo,assignment,database,staff=[]):
           hour = int(matched.group(4))
           mins = int(matched.group(5))
           t = time(hour=hour,minute=(mins//30)*30,second=0)
+          if DAYLIGHTS:
+            dt = datetime.combine(date.today(), t) - timedelta(hours=1)
+            t = dt.time()
           database['cph'][t] += 1
           personal_times[t] +=1
           count += 1

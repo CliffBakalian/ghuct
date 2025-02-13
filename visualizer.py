@@ -4,12 +4,14 @@ def visCPD(cpd,scale=8):
   bins = len(days)
   days.sort()
   counts = []
+  total = 0
   for x in days:
     counts.append(cpd[x])
+    total += cpd[x]
   step = max(max(counts)//scale,1)
   strlen = (bins * 6) - 1
   currline = scale
-  table= ["Commits Per day"] 
+  table= ["Commits Per day - Total: " + str(total)] 
   margin = len(str(step)) + 1
   firsts = []
   while(currline >= 0):
@@ -41,12 +43,14 @@ def visCD(cd,scale=8):
   bins = len(days)
   days.sort()
   counts = []
+  total = 0
   for x in days:
     counts.append(cd[x])
+    total += cd[x]
   step = max(max(counts)//scale,1)
   strlen = (bins * 6) - 1
   currline = scale
-  table= ["Checkout Days"] 
+  table= ["Checkout Days - Total: " + str(total)] 
   margin = len(str(step)) + 1
   firsts = []
   while(currline >= 0):
@@ -118,14 +122,16 @@ def visFC(cpd,scale=8):
   bins = len(days)
   days.sort()
   counts = []
+  total = 0
   for x in days:
     counts.append(cpd[x])
+    total += cpd[x]
   step = max(max(counts)//scale,1)
   if step == 0:
     step = 1
   strlen = (bins * 6) - 1
   currline = scale
-  table= ["First Commit Days"] 
+  table= ["First Commit Days - Total: " + str(total)] 
   margin = len(str(step)) + 1
   firsts = []
   while(currline >= 0):
